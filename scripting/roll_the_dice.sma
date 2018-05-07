@@ -173,7 +173,7 @@ public RemovePrize(bool:bInterrupted) {
 	g_szPrize[0]='^0'
 }
 
-public client_disconnect(id) {
+public client_disconnected(id) {
 	if(g_iRoller==id) {
 		RemovePrize(true)
 	}

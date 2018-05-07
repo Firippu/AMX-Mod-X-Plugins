@@ -1,12 +1,21 @@
 /*
 installation:
-	Use the map specific plugin method, instructions shown in link below
-	http://wiki.amxmodx.org/Configuring_AMX_Mod_X#Map_Specific_Plugins
+	Use the map specific plugin & config method, instructions shown below;
+
+	Make a text file named and located here:
+		amxmodx/configs/maps/plugins-surf_icebob2.ini
+
+	Contents of file:
+		surf_icebob2.amxx
 
 cvars:
-	"surf_icebob2_deathmatch #"  // Toggles deathmatch -- 0 off -- 1 on
-	"surf_icebob2_respawn_delay_armoury #"  // Amount of seconds weapon reset will occur, deathmatch must be activated
-	"surf_icebob2_respawn_delay_player #"  // Amount of seconds player respawn delays, deathmatch must be activated
+	Make a text file named and located here:
+		amxmodx/configs/maps/surf_icebob2.cfg
+
+	Contents of file:
+		surf_icebob2_deathmatch 0					// Toggles deathmatch -- 0 off -- 1 on
+		surf_icebob2_respawn_delay_armoury 180		// Amount of seconds weapon reset will occur, deathmatch must be activated
+		surf_icebob2_respawn_delay_player 3			// Amount of seconds player respawn delays, deathmatch must be activated
 
 commands:
 	"say /respawn"  // Respawns the player under specific conditions, deathmatch must be activated
@@ -17,7 +26,7 @@ commands:
 #include <engine>
 #include <fun>
 
-#define VERSION "1.0.2b"
+#define VERSION "1.0.2c"
 
 #define PREFIX_ENGINE "[ENGINE]"
 #define PREFIX_PLAYER "[PLAYER]"
@@ -27,32 +36,25 @@ commands:
 #define OFFSET_SLOT_SECONDARY 369
 #define OFFSET_SLOT_GRENADE 371
 
-new const g_szJailTeleportModels[][] = {
+new const g_szMODEL_ATM[] = "models/props/atm.mdl"
+
+new const g_szMODEL_JAIL[][] = {
 	"*10",
 	"*11"
 }
 
-new g_szThinkerClassname[]="sib2_thinker"
-
 new bool:g_bPlayerQueued[33]
 
-new g_pCvarDeathMatchToggle,
-	g_pCvarWeaponResetCycle,
-	g_pCvarPlayerRespawnDelay
-
-new g_iTotalWeaponsRemoved,
-	g_iTotalWeaponsRespawned
-
-new g_iNewRoundEntity,
-	g_iRemoveWeaponEntity,
-	g_iRespawnWeaponEntity
+new g_pCvar_TOGGLE_DEATHMATCH,
+	g_pCvar_RESPAWN_WEAPON,
+	g_pCvar_RESPAWN_PLAYER
 
 public plugin_init() {
 	register_plugin("surf_icebob2",VERSION,"Firippu")
 
-	g_pCvarDeathMatchToggle = register_cvar("surf_icebob2_deathmatch","0")
-	g_pCvarWeaponResetCycle = register_cvar("surf_icebob2_respawn_delay_armoury","180")
-	g_pCvarPlayerRespawnDelay = register_cvar("surf_icebob2_respawn_delay_player","3")
+	g_pCvar_TOGGLE_DEATHMATCH = register_cvar("amx_deathmatch","0")
+	g_pCvar_RESPAWN_WEAPON = register_cvar("amx_armoury_delay","180")
+	g_pCvar_RESPAWN_PLAYER = register_cvar("amx_player_delay","3")
 
 	register_clcmd("say /respawn","cmdRespawn")
 
@@ -66,9 +68,10 @@ public plugin_init() {
 	new iEntity
 
 	if((iEntity = create_entity("info_target"))) {
+		new g_szThinkerClassname[]="thinker"
 		entity_set_string(iEntity,EV_SZ_classname,g_szThinkerClassname)
-		entity_set_float(iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_float(g_pCvarWeaponResetCycle))
-		register_think(g_szThinkerClassname,"ThinkerThought")
+		entity_set_float(iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_float(g_pCvar_RESPAWN_WEAPON))
+		register_think(g_szThinkerClassname,"TASK_ARMOURY")
 	}
 
 	if((iEntity = create_entity("info_target"))) {
@@ -78,8 +81,8 @@ public plugin_init() {
 		entity_set_size(iEntity,Float:{832.0,-3296.0,-3553.0},Float:{2752.0,-2848.0,-3553.0})
 	}
 
-	for(new i=0; i<sizeof g_szJailTeleportModels; i++) {
-		if((iEntity = find_ent_by_model(-1,"trigger_teleport",g_szJailTeleportModels[i]))) {
+	for(new i=0; i<sizeof g_szMODEL_JAIL; i++) {
+		if((iEntity = find_ent_by_model(-1,"trigger_teleport",g_szMODEL_JAIL[i]))) {
 			static Float:vOrigin[3]
 
 			entity_get_vector(iEntity,EV_VEC_origin,vOrigin)
@@ -100,18 +103,19 @@ public client_connect(iPlayer) {
 }
 
 public eNewRound() {
-	while((g_iNewRoundEntity = find_ent_by_class(g_iNewRoundEntity,"cycler_sprite")) != 0) {
+	new iEntity
+	while((iEntity = find_ent_by_class(iEntity,"cycler_sprite")) != 0) {
 		static szModel[21]
 
-		entity_get_string(g_iNewRoundEntity,EV_SZ_model,szModel,20)
+		entity_get_string(iEntity,EV_SZ_model,szModel,20)
 
-		if(equal(szModel,"models/props/atm.mdl")) {
-			entity_set_size(g_iNewRoundEntity,Float:{-0.1,-0.1,-0.1},Float:{0.1,0.1,0.1})
-			set_rendering(g_iNewRoundEntity,kRenderFxNone,0,0,0,kRenderTransTexture,0)
+		if(equal(szModel,g_szMODEL_ATM)) {
+			entity_set_size(iEntity,Float:{-0.1,-0.1,-0.1},Float:{0.1,0.1,0.1})
+			set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,0)
 		} else {
-			entity_set_int(g_iNewRoundEntity,EV_INT_movetype,MOVETYPE_FLY)
-			entity_set_vector(g_iNewRoundEntity,EV_VEC_maxs,Float:{5.0,5.0,1.0})
-			set_rendering(g_iNewRoundEntity,kRenderFxNone,0,0,0,kRenderTransTexture,255)
+			entity_set_int(iEntity,EV_INT_movetype,MOVETYPE_FLY)
+			entity_set_vector(iEntity,EV_VEC_maxs,Float:{5.0,5.0,1.0})
+			set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,255)
 		}
 	}
 }
@@ -154,7 +158,7 @@ public fwdPlayerTouchedCycler(iEntity,iPlayer) {
 	entity_get_string(iEntity,EV_SZ_targetname,szTargetname,7)
 	entity_get_string(iEntity,EV_SZ_model,szModel,20)
 
-	if(equal(szModel,"models/props/atm.mdl")) {
+	if(equal(szModel,g_szMODEL_ATM)) {
 		static Float:vOrigin[3]
 
 		entity_get_vector(iPlayer,EV_VEC_origin,vOrigin)
@@ -242,13 +246,13 @@ public bool:bPlayerInTeam(iPlayer) {
 }
 
 public fwdPlayerKilled(iPlayer) {
-	if(get_pcvar_num(g_pCvarDeathMatchToggle)) {
+	if(get_pcvar_num(g_pCvar_TOGGLE_DEATHMATCH)) {
 		if(!is_user_alive(iPlayer) && !g_bPlayerQueued[iPlayer] && bPlayerInTeam(iPlayer)) {
 			g_bPlayerQueued[iPlayer] = true
 
-			client_print(iPlayer,print_chat,"%s%s You will respawn in %d seconds.",PREFIX_ENGINE,PREFIX_PLAYER,get_pcvar_num(g_pCvarPlayerRespawnDelay))
+			client_print(iPlayer,print_chat,"%s%s You will respawn in %d seconds.",PREFIX_ENGINE,PREFIX_PLAYER,get_pcvar_num(g_pCvar_RESPAWN_PLAYER))
 
-			set_task(get_pcvar_float(g_pCvarPlayerRespawnDelay),"RespawnPlayer",iPlayer)
+			set_task(get_pcvar_float(g_pCvar_RESPAWN_PLAYER),"RespawnPlayer",iPlayer)
 		} else {
 			client_print(iPlayer,print_chat,"%s%s You do not meet the requirements to use respawn.",PREFIX_ENGINE,PREFIX_PLAYER)
 		}
@@ -274,50 +278,31 @@ public GivePlayerWeapon(iPlayer,szWeapon[],iEntity) {
 	return HAM_IGNORED
 }
 
-public ThinkerThought(iEntity) {
-	if(get_pcvar_num(g_pCvarDeathMatchToggle)) {
-		RemoveWeapons()
-		RespawnWeapons()
-
-		if(g_iTotalWeaponsRemoved && g_iTotalWeaponsRespawned) {
-			client_print(0,print_chat,"%s%s Removed: %d, Respawned: %d",PREFIX_ENGINE,PREFIX_WEAPON,g_iTotalWeaponsRemoved,g_iTotalWeaponsRespawned)
-		} else if(g_iTotalWeaponsRemoved && !g_iTotalWeaponsRespawned) {
-			client_print(0,print_chat,"%s%s Removed: %d",PREFIX_ENGINE,PREFIX_WEAPON,g_iTotalWeaponsRemoved)
-		} else if(!g_iTotalWeaponsRemoved && g_iTotalWeaponsRespawned) {
-			client_print(0,print_chat,"%s%s Respawned: %d",PREFIX_ENGINE,PREFIX_WEAPON,g_iTotalWeaponsRespawned)
+public TASK_ARMOURY(iEntity) {
+	if(get_pcvar_num(g_pCvar_TOGGLE_DEATHMATCH)) {
+		new iEntity
+		while((iEntity = find_ent_by_class(iEntity,"weaponbox")) != 0) {
+			call_think(iEntity)
 		}
 
-		g_iTotalWeaponsRemoved = 0
-		g_iTotalWeaponsRespawned = 0
-	}
+		while((iEntity = find_ent_by_class(iEntity,"cycler_sprite")) != 0) {
+			static szModel[21]
 
-	entity_set_float(iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_float(g_pCvarWeaponResetCycle))
-}
+			entity_get_string(iEntity,EV_SZ_model,szModel,20)
 
-public RemoveWeapons() {
-	while((g_iRemoveWeaponEntity = find_ent_by_class(g_iRemoveWeaponEntity,"weaponbox")) != 0) {
-		call_think(g_iRemoveWeaponEntity)
-
-		g_iTotalWeaponsRemoved++
-	}
-}
-
-public RespawnWeapons() {
-	while((g_iRespawnWeaponEntity = find_ent_by_class(g_iRespawnWeaponEntity,"cycler_sprite")) != 0) {
-		static szModel[21]
-
-		entity_get_string(g_iRespawnWeaponEntity,EV_SZ_model,szModel,20)
-
-		if(!equal(szModel,"models/props/atm.mdl") && entity_get_float(g_iRespawnWeaponEntity,EV_FL_renderamt) != 255) {
-			entity_set_int(g_iRespawnWeaponEntity,EV_INT_movetype,MOVETYPE_FLY)
-			set_rendering(g_iRespawnWeaponEntity,kRenderFxNone,0,0,0,kRenderTransTexture,255)
-
-			g_iTotalWeaponsRespawned++
+			if(!equal(szModel,g_szMODEL_ATM) && entity_get_float(iEntity,EV_FL_renderamt) != 255) {
+				entity_set_int(iEntity,EV_INT_movetype,MOVETYPE_FLY)
+				set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,255)
+			}
 		}
+
+		client_print(0,print_chat,"%s%s RESET",PREFIX_ENGINE,PREFIX_WEAPON)
 	}
+
+	entity_set_float(iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_float(g_pCvar_RESPAWN_WEAPON))
 }
 
 public plugin_precache() {
-	precache_model("models/props/atm.mdl")
+	precache_model(g_szMODEL_ATM)
 	precache_generic("czcs_office.wad")
 }

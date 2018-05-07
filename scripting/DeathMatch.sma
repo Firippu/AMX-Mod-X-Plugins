@@ -49,7 +49,7 @@ public plugin_init() {
 	}
 }
 
-public client_disconnect(iPlayer) {
+public client_disconnected(iPlayer) {
 	g_bPlayerQueued[iPlayer]=false
 }
 

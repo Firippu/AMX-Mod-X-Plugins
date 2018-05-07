@@ -717,7 +717,7 @@ public postThink(id) {
 	}
 
 	g_pTR2=create_tr2()
- 
+
 	static Float:start[3],Float:end[3],Float:endpos[3]
 	pev(id,pev_origin,start)
 	pev(g_iCurTerr,pev_origin,end)
