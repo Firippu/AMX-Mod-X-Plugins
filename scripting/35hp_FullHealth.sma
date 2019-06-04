@@ -27,5 +27,4 @@ public fwdPlayerTouchedTriggerMultiple(iEntity,iPlayer) {
 	entity_get_vector(iPlayer,EV_VEC_origin,vOrigin)
 	vOrigin[2] -= 120.0
 	entity_set_origin(iPlayer,vOrigin)
-	client_print(0,print_chat,"touched")
 }
