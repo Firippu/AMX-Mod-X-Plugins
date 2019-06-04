@@ -1,3 +1,5 @@
+/* Description; moves teleport destinations lower to prevent unintentional fall damage */
+
 #include <amxmodx>
 #include <engine>
 
