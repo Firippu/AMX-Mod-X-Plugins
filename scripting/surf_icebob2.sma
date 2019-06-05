@@ -13,9 +13,9 @@ cvars:
 		amxmodx/configs/maps/surf_icebob2.cfg
 
 	Contents of file:
-		surf_icebob2_deathmatch 0					// Toggles deathmatch -- 0 off -- 1 on
-		surf_icebob2_respawn_delay_armoury 180		// Amount of seconds weapon reset will occur, deathmatch must be activated
-		surf_icebob2_respawn_delay_player 3			// Amount of seconds player respawn delays, deathmatch must be activated
+		sib2_deathmatch 0			// Toggles deathmatch -- 0 off -- 1 on
+		sib2_armoury_delay 180		// Amount of seconds weapon reset will occur, deathmatch must be activated
+		sib2_player_delay 3			// Amount of seconds player respawn delays, deathmatch must be activated
 
 commands:
 	"say /respawn"  // Respawns the player under specific conditions, deathmatch must be activated
@@ -26,7 +26,7 @@ commands:
 #include <engine>
 #include <fun>
 
-#define VERSION "1.0.2c"
+#define VERSION "1.0.2d"
 
 #define PREFIX_ENGINE "[ENGINE]"
 #define PREFIX_PLAYER "[PLAYER]"
@@ -52,9 +52,9 @@ new g_pCvar_TOGGLE_DEATHMATCH,
 public plugin_init() {
 	register_plugin("surf_icebob2",VERSION,"Firippu")
 
-	g_pCvar_TOGGLE_DEATHMATCH = register_cvar("amx_deathmatch","0")
-	g_pCvar_RESPAWN_WEAPON = register_cvar("amx_armoury_delay","180")
-	g_pCvar_RESPAWN_PLAYER = register_cvar("amx_player_delay","3")
+	g_pCvar_TOGGLE_DEATHMATCH = register_cvar("sib2_deathmatch","0")
+	g_pCvar_RESPAWN_WEAPON = register_cvar("sib2_armoury_delay","180")
+	g_pCvar_RESPAWN_PLAYER = register_cvar("sib2_player_delay","3")
 
 	register_clcmd("say /respawn","cmdRespawn")
 
