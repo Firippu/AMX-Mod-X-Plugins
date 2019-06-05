@@ -1,3 +1,8 @@
+/* Description;
+	allows the glass to be weaken & break when a player stands on it.
+	it also respawns broken glass after a period of time.
+*/
+
 #include <amxmodx>
 #include <engine>
 

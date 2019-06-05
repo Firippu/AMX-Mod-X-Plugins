@@ -1,3 +1,7 @@
+/* Description;
+	This plugin allows the weakening & breaking of glass when a player stands on it
+*/
+
 #include <amxmodx>
 #include <engine>
 

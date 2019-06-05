@@ -1,3 +1,7 @@
+/* Description;
+	Disables the automatic damage afflicted on players upon spawn
+*/
+
 #include <amxmodx>
 #include <engine>
 

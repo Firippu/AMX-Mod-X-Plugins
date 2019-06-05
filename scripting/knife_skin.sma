@@ -1,3 +1,6 @@
+/* Description;
+	simple method to change the knife skin
+*/
 
 #include <amxmodx>
 #include <cstrike>

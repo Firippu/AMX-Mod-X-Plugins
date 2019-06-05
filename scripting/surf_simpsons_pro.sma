@@ -1,4 +1,7 @@
 /*
+description:
+	Renders built-in shortcuts ineffective
+
 installation:
 	Use the map specific plugin method, instructions shown in link below
 	http://wiki.amxmodx.org/Configuring_AMX_Mod_X#Map_Specific_Plugins

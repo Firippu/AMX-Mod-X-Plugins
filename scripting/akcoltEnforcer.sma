@@ -1,3 +1,7 @@
+/* Description;
+		Creates trigger_push between the team sides, preventing both teams from rushing to the other sides.
+		After some time, the trigger_push will become ineffective, allows the teams to reach the other side if needed.
+*/
 
 #include <amxmodx>
 #include <hamsandwich>
