@@ -1,10 +1,19 @@
 /*
+description:
+	Corrects intentional flaws within the map, rendering it playable
+	Gives option for bomb usability
+
 installation:
-	Use the map specific plugin method, instructions shown in link below
-	http://wiki.amxmodx.org/Configuring_AMX_Mod_X#Map_Specific_Plugins
+	Use the map specific plugin & config method, instructions shown below;
+
+	Make a text file named and located here:
+		amxmodx/configs/maps/plugins-surf_ski-1337.ini
+
+	Contents of text file:
+		surf_ski-1337.amxx
 
 cvars:
-	"ski_1337_bomb_off #"  // Removes bombsite -- 0 off -- 1 on
+	"s1337_disable_bomb <0|1>"  // Removes bombsite
 */
 
 #include <amxmodx>
@@ -17,7 +26,7 @@ new g_pDisableBombSite
 public plugin_init() {
 	register_plugin("surf_ski-1337",VERSION,"Firippu")
 
-	g_pDisableBombSite=register_cvar("ski_1337_bomb_off","0")
+	g_pDisableBombSite=register_cvar("s1337_disable_bomb","0")
 
 	new iEntity,iTotal
 
