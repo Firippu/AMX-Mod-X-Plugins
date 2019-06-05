@@ -2,13 +2,14 @@
 description:
 	Automatic removal and respawn of weapons with given time
 	Automatic player respawn with given delay
+	Automatic spawn for latecomers
 
 cvars:
-	"amx_wrc #"	 // Amount of seconds weapon reset will occur
-	"amx_prd #"	 // Amount of seconds player respawn will delay
+	"dm_weapon_reset <#>"    // Amount of seconds weapon reset will occur
+	"dm_player_respawn <#>"  // Amount of seconds player respawn will delay
 
 commands:
-	"say /respawn"  // Respawns player under specific conditions
+	"say /respawn" // Respawns player under specific conditions
 */
 
 #include <amxmodx>
@@ -32,8 +33,8 @@ new g_pCvarWeaponResetCycle,
 public plugin_init() {
 	register_plugin("DeathMatch",VERSION,"Firippu")
 
-	g_pCvarWeaponResetCycle=register_cvar("amx_wrc","180")
-	g_pCvarPlayerRespawnDelay=register_cvar("amx_prd","3")
+	g_pCvarWeaponResetCycle=register_cvar("dm_weapon_reset","180")
+	g_pCvarPlayerRespawnDelay=register_cvar("dm_player_respawn","3")
 
 	register_clcmd("say /respawn","cmdRespawn")
 
