@@ -17,9 +17,9 @@ cvars:
 		amxmodx/configs/maps/surf_icebob2.cfg
 
 	Contents of .cfg file:
-		sib2_deathmatch <0|1>  // Toggles deathmatch, 1 enables
+		sib2_deathmatch <0|1>   // Toggles deathmatch, 1 enables
 		sib2_armoury_delay 180  // Amount of seconds weapon reset will occur, deathmatch must be activated
-		sib2_player_delay 3  // Amount of seconds player respawn delays, deathmatch must be activated
+		sib2_player_delay 3     // Amount of seconds player respawn delays, deathmatch must be activated
 
 commands:
 	"say /respawn"  // Respawns the player under specific conditions, deathmatch must be activated
