@@ -1,10 +1,15 @@
 /*
 description:
-	Renders built-in shortcuts ineffective
+	Renders built-in shortcuts ineffective & announces player's name on map completion
 
 installation:
-	Use the map specific plugin method, instructions shown in link below
-	http://wiki.amxmodx.org/Configuring_AMX_Mod_X#Map_Specific_Plugins
+	Use the map specific plugin & config method, instructions shown below;
+
+	Make a text file named and located here:
+		amxmodx/configs/maps/plugins-surf_simpsons_final.ini
+
+	Contents of text file:
+		surf_simpsons_pro.amxx
 */
 
 #include <amxmodx>
