@@ -1,3 +1,10 @@
+/*
+description:
+	allows admins to see chat messages from both teams
+
+commands:
+	"say /adminchat" // toggles the feature
+*/
 
 #include <amxmodx>
 #include <amxmisc>

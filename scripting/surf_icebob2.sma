@@ -9,17 +9,17 @@ installation:
 	Make a text file named and located here:
 		amxmodx/configs/maps/plugins-surf_icebob2.ini
 
-	Contents of text file:
+	Contents of .ini file:
 		surf_icebob2.amxx
 
 cvars:
 	Make a text file named and located here:
 		amxmodx/configs/maps/surf_icebob2.cfg
 
-	Contents of file:
-		sib2_deathmatch 0		// Toggles deathmatch -- 0 off -- 1 on
-		sib2_armoury_delay 180	// Amount of seconds weapon reset will occur, deathmatch must be activated
-		sib2_player_delay 3		// Amount of seconds player respawn delays, deathmatch must be activated
+	Contents of .cfg file:
+		sib2_deathmatch <0|1>  // Toggles deathmatch, 1 enables
+		sib2_armoury_delay 180  // Amount of seconds weapon reset will occur, deathmatch must be activated
+		sib2_player_delay 3  // Amount of seconds player respawn delays, deathmatch must be activated
 
 commands:
 	"say /respawn"  // Respawns the player under specific conditions, deathmatch must be activated

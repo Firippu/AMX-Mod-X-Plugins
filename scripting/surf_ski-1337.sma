@@ -9,17 +9,21 @@ installation:
 	Make a text file named and located here:
 		amxmodx/configs/maps/plugins-surf_ski-1337.ini
 
-	Contents of text file:
+	Contents of .ini file:
 		surf_ski-1337.amxx
 
 cvars:
-	"s1337_disable_bomb <0|1>"  // Removes bombsite
+	Make a text file named and located here:
+		amxmodx/configs/maps/surf_ski-1337.cfg
+
+	Contents of .cfg file:
+		"s1337_disable_bomb <0|1>"  // Removes bombsite, 1 disables
 */
 
 #include <amxmodx>
 #include <engine>
 
-#define VERSION "1.1.0"
+#define VERSION "1.1.0a"
 
 new g_pDisableBombSite
 
