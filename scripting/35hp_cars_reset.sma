@@ -1,15 +1,27 @@
+/*
+description:
+	This plugin is for the map 35hp_cars. It allows the cars to be reset & set back to their spawn.
+	This is either done automatically by a set number of seconds, or by an admin command.
+
+cvars:
+	"35hp_cars_reset <#>"    // Amount of seconds cars automatically reset
+
+commands:
+	"say /resetcars" // Resets cars on demand, admin only
+*/
+
+
 #include <amxmodx>
 #include <engine>
 #include <hamsandwich>
 
-#define SECONDS 60.0
-
-new g_szThinkerClassname[]="35hpcars_thinker"
+new const g_szThinkerClassname[]="35hpcars_thinker"
 
 new g_iEntity
+new g_pCvarCarsReset
 
 public plugin_init() {
-	register_plugin("35hp_cars","1.0","Firippu")
+	register_plugin("35hp_cars","1.1","Firippu")
 
 	new szMapName[11]
 	get_mapname(szMapName,10)
@@ -17,9 +29,11 @@ public plugin_init() {
 	if(equali(szMapName,"35hp_cars")) {
 		if((g_iEntity = create_entity("info_target"))) {
 			entity_set_string(g_iEntity,EV_SZ_classname,g_szThinkerClassname)
-			entity_set_float(g_iEntity,EV_FL_nextthink,get_gametime() + SECONDS)
+			entity_set_float(g_iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_num(g_pCvarCarsReset))
 			register_think(g_szThinkerClassname,"ThinkerThought")
 		}
+
+		g_pCvarCarsReset=register_cvar("35hp_cars_reset","60")
 
 		register_clcmd("say /resetcars","cmdResetCars")
 	}
@@ -40,7 +54,7 @@ public ThinkerThought(iThinker) {
 		}
 	}
 
-	entity_set_float(iThinker,EV_FL_nextthink,get_gametime() + SECONDS)
+	entity_set_float(iThinker,EV_FL_nextthink,get_gametime() + get_pcvar_num(g_pCvarCarsReset))
 }
 
 public ResetCar(iCar) {
