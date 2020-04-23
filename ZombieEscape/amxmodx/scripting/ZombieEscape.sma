@@ -1,3 +1,8 @@
+/*
+description:
+	This is an zombie escape plugin from scratch from years ago.
+	It still needs work. Consider it to be in alpha status.
+*/
 
 #include <amxmodx>
 #include <engine>
@@ -90,25 +95,29 @@ public plugin_init() {
 	register_plugin("ZombieEscape",VERSION,"Firippu")
 
 	RegisterHam(Ham_Spawn,"player","fwdPlayerSpawn",1)
+	RegisterHam(Ham_Spawn,"bot","fwdPlayerSpawn",1)
 
 	RegisterHam(Ham_TakeDamage,"player","fwdTakeDmg",0)
+	RegisterHam(Ham_TakeDamage,"bot","fwdTakeDmg",0)
 
 	register_touch("weaponbox","player","fwdTouch")
 	register_touch("armoury_entity","player","fwdTouch")
 
 	RegisterHam(Ham_Killed,"player","fwdPlayerKilled",1)
+	RegisterHam(Ham_Killed,"bot","fwdPlayerKilled",1)
 
 	register_forward(FM_ClientKill,"FwdClientKill")
 
 	set_cvar_num("mp_freezetime",0)
-	
+	set_cvar_num("mp_friendlyfire",0)
+
 	g_iMaxPlayers = get_maxplayers()
 
 	register_event("AmmoX","Event_AmmoX","be","2<200")
 
 	g_fCvar_HSpeed = register_cvar("ze_hspeed","200.0")
 	g_fCvar_ZSpeed = register_cvar("ze_zspeed","250.0")
-	g_fCvar_ZHealth = register_cvar("ze_zhealth","10000")
+	g_fCvar_ZHealth = register_cvar("ze_zhealth","1000")
 
 	register_touch("func_tracktrain","player","fwdPlayerTouchedTrackTrain")
 
@@ -279,6 +288,14 @@ public NewRound() {
 		if(GetInTeamNum()<PLAYERS_NEEDED) {
 			StartWarmUp()
 		} else {
+			for(new id=1; id<32; id++) {
+				if(is_user_connected(id)) {
+					if(bPlayerInTeam(id)) {
+						ExecuteHam(Ham_CS_RoundRespawn,id)
+					}
+				}
+			}
+
 			PrintHudMessage(3.0,"Prepare")
 			set_task(5.0,"AfterPrepare")
 		}
@@ -378,7 +395,7 @@ public fwdPlayerKilled(iPlayer) {
 		}
 	}
 
-	set_task(1.0,"fnRespawn",iPlayer)
+	//set_task(1.0,"fnRespawn",iPlayer)
 
 	return HAM_IGNORED
 }
@@ -619,8 +636,6 @@ public fwdTakeDmg(iVictim,iInflictor,iAttacker,Float:damage,damagebits) {
 
 			PlaySoundToClient(iVictim,g_szSoundsInfect[random_num(0,charsmax(g_szSoundsInfect))])
 			PlaySoundToClient(iAttacker,g_szSoundsInfect[random_num(0,charsmax(g_szSoundsInfect))])
-
-			
 
 			if(iHumansLeft()>1) {
 				InfectPlayer(iVictim,false)
