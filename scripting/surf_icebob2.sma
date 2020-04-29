@@ -78,6 +78,7 @@ public plugin_init() {
 		register_think(g_szThinkerClassname,"TASK_ARMOURY_RESPAWN")
 	}
 
+	// creates trigger_teleport underneath spawn points; moving players upwards
 	if((iEntity = create_entity("info_target"))) {
 		entity_set_string(iEntity,EV_SZ_classname,"trigger_teleport")
 		entity_set_string(iEntity,EV_SZ_target,"up")
