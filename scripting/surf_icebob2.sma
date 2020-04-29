@@ -72,10 +72,10 @@ public plugin_init() {
 	new iEntity
 
 	if((iEntity = create_entity("info_target"))) {
-		new g_szThinkerClassname[]="thinker"
+		new g_szThinkerClassname[]="sib2_thinker"
 		entity_set_string(iEntity,EV_SZ_classname,g_szThinkerClassname)
 		entity_set_float(iEntity,EV_FL_nextthink,get_gametime() + get_pcvar_float(g_pCvar_RESPAWN_WEAPON))
-		register_think(g_szThinkerClassname,"TASK_ARMOURY")
+		register_think(g_szThinkerClassname,"TASK_ARMOURY_RESPAWN")
 	}
 
 	if((iEntity = create_entity("info_target"))) {
@@ -85,6 +85,7 @@ public plugin_init() {
 		entity_set_size(iEntity,Float:{832.0,-3296.0,-3553.0},Float:{2752.0,-2848.0,-3553.0})
 	}
 
+	// sets ground teleports higher to prevent falling player damage
 	for(new i=0; i<sizeof g_szMODEL_JAIL; i++) {
 		if((iEntity = find_ent_by_model(-1,"trigger_teleport",g_szMODEL_JAIL[i]))) {
 			static Float:vOrigin[3]
@@ -97,6 +98,7 @@ public plugin_init() {
 		}
 	}
 
+	// makes shooting the target decals to open jail doors work
 	if((iEntity = find_ent_by_class(-1,"button_target"))) {
 		entity_set_string(iEntity,EV_SZ_target,"jaildoors")
 	}
@@ -114,9 +116,11 @@ public eNewRound() {
 		entity_get_string(iEntity,EV_SZ_model,szModel,20)
 
 		if(equal(szModel,g_szMODEL_ATM)) {
+			// makes atm models touchable & invisible to mimic trigger_teleport
 			entity_set_size(iEntity,Float:{-0.1,-0.1,-0.1},Float:{0.1,0.1,0.1})
 			set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,0)
 		} else {
+			// makes weapon models touchable & visible
 			entity_set_int(iEntity,EV_INT_movetype,MOVETYPE_FLY)
 			entity_set_vector(iEntity,EV_VEC_maxs,Float:{5.0,5.0,1.0})
 			set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,255)
@@ -199,40 +203,40 @@ public fwdPlayerTouchedCycler(iEntity,iPlayer) {
 
 		entity_set_origin(iPlayer,vOrigin)
 
-		return HAM_SUPERCEDE
+		return PLUGIN_CONTINUE
 	}
 
 	if(get_pdata_cbase(iPlayer,OFFSET_SLOT_PRIMARY)<0) {
 		if(equal(szTargetname,"scout")) {
-			GivePlayerWeapon(iPlayer,"weapon_scout",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_scout",iEntity)
 		} else if(equal(szTargetname,"m4a1")) {
-			GivePlayerWeapon(iPlayer,"weapon_m4a1",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_m4a1",iEntity)
 		} else if(equal(szTargetname,"ak47")) {
-			GivePlayerWeapon(iPlayer,"weapon_ak47",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_ak47",iEntity)
 		} else if(equal(szTargetname,"m249")) {
-			GivePlayerWeapon(iPlayer,"weapon_m249",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_m249",iEntity)
 		} else if(equal(szTargetname,"shotgun")) {
-			GivePlayerWeapon(iPlayer,"weapon_m3",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_m3",iEntity)
 		} else if(equal(szTargetname,"mp5")) {
-			GivePlayerWeapon(iPlayer,"weapon_mp5navy",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_mp5navy",iEntity)
 		} else if(equal(szTargetname,"awp")) {
-			GivePlayerWeapon(iPlayer,"weapon_awp",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_awp",iEntity)
 		}
 	}
 
 	if(get_pdata_cbase(iPlayer,OFFSET_SLOT_SECONDARY)<0) {
 		if(equal(szTargetname,"deagle")) {
-			GivePlayerWeapon(iPlayer,"weapon_deagle",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_deagle",iEntity)
 		}
 	}
 
 	if(get_pdata_cbase(iPlayer,OFFSET_SLOT_GRENADE)<0) {
 		if(equal(szTargetname,"grenade")) {
-			GivePlayerWeapon(iPlayer,"weapon_hegrenade",iEntity)
+			return GivePlayerWeapon(iPlayer,"weapon_hegrenade",iEntity)
 		}
 	}
 
-	return HAM_IGNORED
+	return PLUGIN_CONTINUE
 }
 
 public cmdRespawn(iPlayer) {
@@ -272,6 +276,7 @@ public RespawnPlayer(iPlayer) {
 }
 
 public GivePlayerWeapon(iPlayer,szWeapon[],iEntity) {
+	// makes weapon models untouchable & invisible, emulates natural pickup
 	set_rendering(iEntity,kRenderFxNone,0,0,0,kRenderTransTexture,0)
 	entity_set_int(iEntity,EV_INT_movetype,MOVETYPE_NOCLIP)
 
@@ -279,16 +284,19 @@ public GivePlayerWeapon(iPlayer,szWeapon[],iEntity) {
 		give_item(iPlayer,szWeapon)
 	}
 
-	return HAM_IGNORED
+	return PLUGIN_CONTINUE
 }
 
-public TASK_ARMOURY(iEntity) {
+public TASK_ARMOURY_RESPAWN(iEntity) {
 	if(get_pcvar_num(g_pCvar_TOGGLE_DEATHMATCH)) {
 		new iEntity
+		
+		// removes used weapons off the ground
 		while((iEntity = find_ent_by_class(iEntity,"weaponbox")) != 0) {
 			call_think(iEntity)
 		}
 
+		// makes weapon models touchable & visible again
 		while((iEntity = find_ent_by_class(iEntity,"cycler_sprite")) != 0) {
 			static szModel[21]
 
